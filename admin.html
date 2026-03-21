@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Admin - OrçaAqui</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./css/styles.css">
+    <style>
+        .admin-header { background-color: #0f172a; color: white; }
+        .admin-header .header-title { color: white; }
+        
+        /* Login Overlay */
+        #login-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background-color: var(--bg-color); z-index: 2000;
+            display: flex; justify-content: center; align-items: center;
+        }
+        .login-box {
+            background: white; padding: 2rem; border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); width: 100%; max-width: 400px;
+        }
+        .hidden { display: none !important; }
+        
+        /* Modal IA */
+        .ai-result-box {
+            background-color: #f0fdf4; /* green-50 */
+            border: 1px solid #bbf7d0;
+            border-left: 4px solid #22c55e;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            line-height: 1.6;
+            margin-top: 1rem;
+            white-space: pre-line;
+        }
+        .loader {
+            border: 4px solid #f3f3f3; border-top: 4px solid var(--primary-color);
+            border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite;
+            margin: 2rem auto;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Remove a linha azul do h3 no admin */
+        .no-line::after {
+            content: none !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Simples para MVP -->
+    <div id="login-overlay">
+        <div class="login-box">
+            <h2 style="margin-bottom: 1rem;">Acesso Restrito</h2>
+            <form id="form-login">
+                <div class="form-group">
+                    <label for="admin-pass">Senha de Acesso</label>
+                    <input type="password" id="admin-pass" required placeholder="Digite a senha">
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Entrar</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Script inline para evitar a "piscada" do painel de login antes do JS carregar -->
+    <script>
+        if (localStorage.getItem('orcaAqui_admin_auth') === 'true') {
+            document.getElementById('login-overlay').style.display = 'none';
+        }
+    </script>
+
+    <header class="header-main admin-header">
+        <div class="container header-container">
+            <h1 class="header-title">OrçaAqui <span style="font-size: 1rem; color:#cbd5e1; font-weight: normal;">| Painel de Gestão</span></h1>
+            <nav>
+                <a href="#" id="btn-logout" class="header-link" style="color: #cbd5e1;">Sair</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container main-content">
+        <div class="section-title-container">
+            <h3 class="no-line">Seus Pedidos Ativos</h3>
+            <p style="color: var(--text-muted); margin-top: 0.5rem;">Analise as propostas recebidas usando Inteligência Artificial</p>
+        </div>
+        
+        <div id="admin-orders-container" class="orders-grid">
+            <!-- Carregando -->
+            <div style="grid-column: 1/-1; text-align: center;"><div class="loader"></div></div>
+        </div>
+    </main>
+
+    <!-- Modal de Análise de IA -->
+    <div id="ai-modal" class="modal-overlay modal-hidden">
+        <div class="modal-content" style="max-width: 600px;">
+            <header class="modal-header">
+                <h2>Análise de Propostas (IA)</h2>
+                <button id="btn-close-ai-modal" class="btn-close">&times;</button>
+            </header>
+            <div class="modal-body" style="grid-template-columns: 1fr;">
+                <div id="ai-loading" style="text-align: center;">
+                    <div class="loader"></div>
+                    <p style="color: var(--text-muted);">A Inteligência Artificial está lendo as propostas e calculando o melhor fornecedor...</p>
+                </div>
+                <div id="ai-content" class="hidden">
+                    <h3 style="font-size: 1.1rem; color: var(--text-color); margin-bottom: 0.5rem;" id="ai-order-title">Pedido: ---</h3>
+                    <div id="ai-result" class="ai-result-box"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Container de Notificações (Toast) -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <script type="module" src="./js/admin.js"></script>
+</body>
+</html>
