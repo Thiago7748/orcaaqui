@@ -116,6 +116,9 @@ async function analisarComIA(orderId, orderTitle) {
         // Chamada para o novo Webhook que vamos criar no n8n!
         const response = await fetch(`https://n8n.srv1483391.hstgr.cloud/webhook/orcaaqui-analise-ia?id_pedido=${orderId}`);
         
+        if (response.status === 429 || response.status === 500) {
+            throw new Error('RATE_LIMIT');
+        }
         if (!response.ok) throw new Error('Erro na análise da IA');
         
         const result = await response.json();
@@ -125,7 +128,11 @@ async function analisarComIA(orderId, orderTitle) {
         
     } catch (error) {
         console.error(error);
-        aiResult.innerHTML = `<span style="color: red;">Falha ao contactar a IA. O workflow de análise já está ativo no n8n?</span>`;
+        if (error.message === 'RATE_LIMIT') {
+            aiResult.innerHTML = `<span style="color: #eab308; font-weight: bold;">⚠️ Limite da Inteligência Artificial atingido.</span><br><br>A API gratuita do Google Gemini permite um número limitado de análises por minuto. Por favor, aguarde cerca de 1 minuto e tente novamente.`;
+        } else {
+            aiResult.innerHTML = `<span style="color: red;">Falha ao contactar a IA. O workflow de análise já está ativo no n8n?</span>`;
+        }
     } finally {
         aiLoading.classList.add('hidden');
         aiContent.classList.remove('hidden');
